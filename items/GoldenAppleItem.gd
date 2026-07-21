@@ -8,7 +8,7 @@ func _init() -> void:
 	item_name = "Golden Apple"
 	cooldown = 0.0
 	stack_size = 64
-	icon_texture = HCFItemResource.load_item_texture("res://assets/sprites/golden_apple.png")
+	icon_texture = HCFItemResource.load_item_texture("golden_apple")
 
 func on_active_use(user: Node2D, _target_pos: Vector2) -> bool:
 	if not user:

@@ -12,7 +12,7 @@ func _init() -> void:
 	item_name = "Bard Sugar"
 	cooldown = 10.0
 	stack_size = 64
-	icon_texture = HCFItemResource.load_item_texture("res://assets/sprites/bard_sugar.png")
+	icon_texture = HCFItemResource.load_item_texture("bard_sugar")
 
 func on_hold_tick(user: Node2D, _delta: float) -> void:
 	if not user or user is not Player:

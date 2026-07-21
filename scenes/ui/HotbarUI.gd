@@ -72,20 +72,19 @@ func _create_hotbar_slots() -> void:
 		var panel = PanelContainer.new()
 		panel.custom_minimum_size = Vector2(46, 46)
 		
-		var margin = MarginContainer.new()
-		margin.custom_minimum_size = Vector2(40, 40)
-		margin.add_theme_constant_override("margin_left", 2)
-		margin.add_theme_constant_override("margin_top", 2)
-		margin.add_theme_constant_override("margin_right", 2)
-		margin.add_theme_constant_override("margin_bottom", 2)
+		var center = CenterContainer.new()
+		center.custom_minimum_size = Vector2(44, 44)
+		center.set_anchors_preset(Control.PRESET_FULL_RECT)
 		
 		# Texture Icon Rect
 		var icon_rect = TextureRect.new()
-		icon_rect.custom_minimum_size = Vector2(36, 36)
-		icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon_rect.custom_minimum_size = Vector2(32, 32)
+		icon_rect.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		icon_rect.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		icon_rect.expand_mode = TextureRect.EXPAND_KEEP_SIZE
 		icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		icon_rect.visible = false
-		margin.add_child(icon_rect)
+		center.add_child(icon_rect)
 		
 		# Text Label Fallback
 		var label = Label.new()
@@ -94,13 +93,13 @@ func _create_hotbar_slots() -> void:
 		label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 		label.clip_text = true
 		label.add_theme_font_size_override("font_size", 10)
-		margin.add_child(label)
+		center.add_child(label)
 		
 		var count_label = Label.new()
 		count_label.text = ""
 		count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 		count_label.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
-		count_label.add_theme_font_size_override("font_size", 10)
+		count_label.add_theme_font_size_override("font_size", 11)
 		count_label.set_anchors_preset(Control.PRESET_FULL_RECT)
 		
 		var cooldown_overlay = ColorRect.new()
@@ -108,7 +107,7 @@ func _create_hotbar_slots() -> void:
 		cooldown_overlay.visible = false
 		cooldown_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
 		
-		panel.add_child(margin)
+		panel.add_child(center)
 		panel.add_child(count_label)
 		panel.add_child(cooldown_overlay)
 		container.add_child(panel)
@@ -173,11 +172,9 @@ func _on_hotbar_updated(slots: Array, counts: Array) -> void:
 		var count = counts[i] if i < counts.size() else 0
 		
 		if item and count > 0:
-			if not item.icon_texture:
-				item.icon_texture = _fallback_load_texture(item.item_id)
-			
-			if item.icon_texture:
-				slot_icon_rects[i].texture = item.icon_texture
+			var tex = item.icon_texture if item.icon_texture else HCFItemResource.load_item_texture(item.item_id)
+			if tex:
+				slot_icon_rects[i].texture = tex
 				slot_icon_rects[i].visible = true
 				slot_labels[i].visible = false
 			else:
@@ -191,24 +188,12 @@ func _on_hotbar_updated(slots: Array, counts: Array) -> void:
 				elif item.item_id == "bard_sugar": short_name = "Azucar"
 				slot_labels[i].text = "%s" % short_name
 			
-			slot_count_labels[i].text = "%d" if item.stack_size > 1 else ""
+			slot_count_labels[i].text = "%d" % count if (item.stack_size > 1 and count > 1) else ""
 		else:
 			slot_icon_rects[i].visible = false
 			slot_labels[i].visible = true
 			slot_labels[i].text = "%d" % (i + 1)
 			slot_count_labels[i].text = ""
-
-func _fallback_load_texture(item_id: String) -> Texture2D:
-	var path_map = {
-		"diamond_sword": "res://assets/sprites/diamond_sword.png",
-		"rogue_backstab": "res://assets/sprites/rogue_dagger.png",
-		"ender_pearl": "res://assets/sprites/ender_pearl.png",
-		"golden_apple": "res://assets/sprites/golden_apple.png",
-		"bard_sugar": "res://assets/sprites/bard_sugar.png"
-	}
-	if path_map.has(item_id):
-		return HCFItemResource.load_item_texture(path_map[item_id])
-	return null
 
 func _on_cooldown_updated(item_id: String, remaining: float, total: float) -> void:
 	if not hotbar_component:

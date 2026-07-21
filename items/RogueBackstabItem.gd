@@ -8,7 +8,7 @@ func _init() -> void:
 	item_name = "Rogue Dagger"
 	cooldown = 10.0
 	stack_size = 1
-	icon_texture = HCFItemResource.load_item_texture("res://assets/sprites/rogue_dagger.png")
+	icon_texture = HCFItemResource.load_item_texture("rogue_backstab")
 
 func on_active_use(user: Node2D, _target_pos: Vector2) -> bool:
 	if not user or user is not Player:

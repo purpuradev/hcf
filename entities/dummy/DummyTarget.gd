@@ -1,7 +1,7 @@
 class_name DummyTarget
 extends CharacterBody2D
 
-## Test Target Dummy for HCF combat, damage, and backstab testing
+## Test Target Dummy for HCF combat, damage, and backstab testing (Authentic Minecraft 128x PNG Sprites)
 
 @onready var health_component: HealthComponent = $HealthComponent
 @onready var hurtbox_component: HurtboxComponent = $HurtboxComponent
@@ -9,6 +9,10 @@ extends CharacterBody2D
 @onready var label: Label = $Label
 
 func _ready() -> void:
+	if sprite:
+		sprite.texture = HCFItemResource.load_item_texture("target_dummy")
+		sprite.scale = Vector2(0.25, 0.25)
+	
 	if hurtbox_component and health_component:
 		hurtbox_component.health_component = health_component
 	

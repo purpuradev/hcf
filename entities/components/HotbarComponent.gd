@@ -129,6 +129,17 @@ func get_held_count() -> int:
 		return slot_counts[selected_slot]
 	return 0
 
+func consume_held_item(amount: int = 1) -> bool:
+	if selected_slot >= 0 and selected_slot < slot_counts.size():
+		if slot_counts[selected_slot] >= amount:
+			slot_counts[selected_slot] -= amount
+			if slot_counts[selected_slot] <= 0:
+				slot_counts[selected_slot] = 0
+				slots[selected_slot] = null
+			hotbar_updated.emit(slots, slot_counts)
+			return true
+	return false
+
 func is_on_cooldown(item_id: String) -> bool:
 	return cooldowns.has(item_id) and cooldowns[item_id]["remaining"] > 0
 
@@ -146,10 +157,7 @@ func use_held_item() -> bool:
 	
 	if success:
 		if item.item_id != "diamond_sword" and item.item_id != "rogue_backstab":
-			slot_counts[selected_slot] -= 1
-			if slot_counts[selected_slot] <= 0:
-				slot_counts[selected_slot] = 0
-				slots[selected_slot] = null
+			consume_held_item(1)
 		
 		if item.cooldown > 0:
 			cooldowns[item.item_id] = {"remaining": item.cooldown, "total": item.cooldown}

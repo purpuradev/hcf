@@ -1,7 +1,7 @@
 class_name Player
 extends CharacterBody2D
 
-## Main Player controller for 2D Hardcore Factions
+## Main Player controller for 2D Hardcore Factions (Authentic Minecraft 128x PNG Sprites)
 
 @onready var movement_component: MovementComponent = $MovementComponent
 @onready var health_component: HealthComponent = $HealthComponent
@@ -20,6 +20,10 @@ var current_state: GameEnums.PlayerState = GameEnums.PlayerState.IDLE
 
 func _ready() -> void:
 	add_to_group("player")
+	
+	if sprite:
+		sprite.texture = HCFItemResource.load_item_texture("player_character")
+		sprite.scale = Vector2(0.25, 0.25)
 	
 	var bus = get_node_or_null("/root/EventBus")
 	if bus:
@@ -55,7 +59,7 @@ func _physics_process(_delta: float) -> void:
 	movement_component.is_sprinting = is_sprinting
 	
 	# Update visual orientation
-	if input_dir.x != 0:
+	if input_dir.x != 0 and sprite:
 		sprite.flip_h = input_dir.x < 0
 	
 	# Update state
