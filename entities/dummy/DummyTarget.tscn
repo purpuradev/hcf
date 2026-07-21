@@ -1,0 +1,45 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://entities/dummy/DummyTarget.gd" id="1_dummy"]
+[ext_resource type="Texture2D" path="res://icon.svg" id="2_icon"]
+[ext_resource type="Script" path="res://entities/components/HealthComponent.gd" id="3_health"]
+[ext_resource type="Script" path="res://entities/components/HurtboxComponent.gd" id="4_hurtbox"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_dummy"]
+radius = 16.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hurtbox"]
+radius = 18.0
+
+[node name="DummyTarget" type="CharacterBody2D"]
+collision_layer = 1
+script = ExtResource("1_dummy")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("2_icon")
+modulate = Color(1, 0.4, 0.2, 1)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_dummy")
+
+[node name="HealthComponent" type="Node" parent="."]
+script = ExtResource("3_health")
+max_health = 500.0
+
+[node name="HurtboxComponent" type="Area2D" parent="."]
+collision_layer = 2
+collision_mask = 0
+script = ExtResource("4_hurtbox")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtboxComponent"]
+shape = SubResource("CircleShape2D_hurtbox")
+
+[node name="Label" type="Label" parent="."]
+offset_left = -100.0
+offset_top = -45.0
+offset_right = 100.0
+offset_bottom = -15.0
+text = "Dummy Target
+(Espalda = Lado Izquierdo)"
+horizontal_alignment = 1

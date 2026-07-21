@@ -1,0 +1,43 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="hardcorefactions"
+config/features=PackedStringArray("4.7", "GL Compatibility")
+config/icon="res://icon.svg"
+run/main_scene="res://scenes/worlds/World.tscn"
+
+[autoload]
+
+EventBus="*res://core/autoloads/EventBus.gd"
+SceneManager="*res://core/autoloads/SceneManager.gd"
+FactionManager="*res://core/autoloads/FactionManager.gd"
+
+[display]
+
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+
+[layer_names]
+
+2d_physics/layer_1="World_Collision"
+2d_physics/layer_2="Hurtbox"
+2d_physics/layer_3="Hitbox"
+
+[physics]
+
+3d/physics_engine="Jolt Physics"
+
+[rendering]
+
+rendering_device/driver.windows="d3d12"
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"

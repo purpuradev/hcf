@@ -1,0 +1,119 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scenes/worlds/World.gd" id="1_world"]
+[ext_resource type="PackedScene" path="res://entities/player/Player.tscn" id="2_player"]
+[ext_resource type="PackedScene" path="res://camera/GameCamera.tscn" id="3_camera"]
+[ext_resource type="Script" path="res://scenes/zones/ZoneArea.gd" id="4_zone"]
+[ext_resource type="PackedScene" path="res://entities/dummy/DummyTarget.tscn" id="5_dummy"]
+[ext_resource type="PackedScene" path="res://scenes/ui/HotbarUI.tscn" id="6_hotbarui"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_safezone"]
+size = Vector2(400, 400)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_warzone"]
+size = Vector2(400, 400)
+
+[node name="World" type="Node2D"]
+script = ExtResource("1_world")
+
+[node name="Safezone" type="Area2D" parent="."]
+position = Vector2(300, 300)
+collision_layer = 4
+collision_mask = 0
+script = ExtResource("4_zone")
+zone_name = "Spawn Safezone"
+faction_type = 0
+pvp_enabled = false
+faction_id = "safezone"
+
+[node name="ColorRect" type="ColorRect" parent="Safezone"]
+offset_left = -200.0
+offset_top = -200.0
+offset_right = 200.0
+offset_bottom = 200.0
+color = Color(0.1, 0.6, 0.2, 0.25)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Safezone"]
+shape = SubResource("RectangleShape2D_safezone")
+
+[node name="Warzone" type="Area2D" parent="."]
+position = Vector2(750, 300)
+collision_layer = 4
+collision_mask = 0
+script = ExtResource("4_zone")
+zone_name = "Warzone North"
+faction_type = 1
+pvp_enabled = true
+faction_id = "warzone"
+
+[node name="ColorRect" type="ColorRect" parent="Warzone"]
+offset_left = -200.0
+offset_top = -200.0
+offset_right = 200.0
+offset_bottom = 200.0
+color = Color(0.8, 0.2, 0.2, 0.25)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Warzone"]
+shape = SubResource("RectangleShape2D_warzone")
+
+[node name="DummyTarget" parent="." instance=ExtResource("5_dummy")]
+position = Vector2(750, 300)
+
+[node name="Player" parent="." instance=ExtResource("2_player")]
+position = Vector2(300, 300)
+
+[node name="GameCamera" parent="." instance=ExtResource("3_camera")]
+position = Vector2(300, 300)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="HUD" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/HUD"]
+layout_mode = 0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 550.0
+offset_bottom = 250.0
+mouse_filter = 2
+
+[node name="ClassLabel" type="Label" parent="CanvasLayer/HUD/VBoxContainer"]
+layout_mode = 2
+text = "Clase: Rogue (Velocidad: 1.3x)"
+
+[node name="ZoneLabel" type="Label" parent="CanvasLayer/HUD/VBoxContainer"]
+layout_mode = 2
+text = "Zona: Spawn Safezone [SAFEZONE]"
+
+[node name="CombatTagLabel" type="Label" parent="CanvasLayer/HUD/VBoxContainer"]
+layout_mode = 2
+text = "COMBAT TAG: Inactivo"
+
+[node name="ControlsLabel" type="Label" parent="CanvasLayer/HUD/VBoxContainer"]
+layout_mode = 2
+text = "Controles Auténticos HCF:
+- Slot 1: Diamond Sword (Ataque rápido sin cooldown - No se stackea)
+- Slot 2: Daga Rogue Backstab (10s Cooldown - Daño Crítico 2.5x por la Espalda)
+- Slot 3: Ender Pearl (16 Perlas - 15s Cooldown)
+- Slot 4: Golden Apple (64 Manzanas - Sin Cooldown)
+- Slot 5: Bard Sugar (64 Azúcar - Pasiva Speed II | Activa Speed III)
+- Z, X, C: Cambiar Clase | T: Combat Tag"
+
+[node name="HotbarUI" parent="CanvasLayer/HUD" instance=ExtResource("6_hotbarui")]
+layout_mode = 1
+
+[node name="Crosshair" type="Label" parent="CanvasLayer/HUD"]
+layout_mode = 0
+offset_right = 20.0
+offset_bottom = 20.0
+theme_override_font_sizes/font_size = 20
+text = "+"
+horizontal_alignment = 1
+vertical_alignment = 1
