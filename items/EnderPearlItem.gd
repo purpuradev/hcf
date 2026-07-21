@@ -1,29 +1,30 @@
 class_name EnderPearlItem
 extends HCFItemResource
 
-## HCF Ender Pearl: Teleports player to cursor position with fall damage and 15s cooldown
+## HCF Ender Pearl: Teleports player to cursor position with 15s cooldown and 10 HP fall damage
+
+@export var fall_damage: float = 10.0
 
 func _init() -> void:
 	item_id = "ender_pearl"
 	item_name = "Ender Pearl"
 	cooldown = 15.0
 	stack_size = 16
+	icon_texture = HCFItemResource.load_item_texture("res://assets/sprites/ender_pearl.png")
 
 func on_active_use(user: Node2D, target_pos: Vector2) -> bool:
-	if not user:
+	if not user or user is not Player:
 		return false
 	
-	# Teleport user to target mouse cursor position
-	user.global_position = target_pos
+	var player = user as Player
+	player.global_position = target_pos
 	
-	# Apply 10 HP pearl fall damage
-	if user.has_node("HealthComponent"):
-		var health = user.get_node("HealthComponent") as HealthComponent
-		if health:
-			var pearl_damage = DamageInfo.new(10.0, user, GameEnums.DamageType.ENVIRONMENTAL)
-			health.take_damage(pearl_damage)
+	if player.health_component:
+		var damage_info = DamageInfo.new(fall_damage, null, GameEnums.DamageType.FALL)
+		player.health_component.take_damage(damage_info)
 	
 	var bus = user.get_node_or_null("/root/EventBus")
 	if bus:
-		bus.camera_shake_requested.emit(5.0, 0.2)
+		bus.camera_shake_requested.emit(4.0, 0.15)
+	
 	return true

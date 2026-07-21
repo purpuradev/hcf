@@ -1,18 +1,22 @@
 class_name HotbarComponent
 extends Node
 
-## Manages 9 Minecraft-style hotbar slots, stack counts, passive hold tick, and item execution
+## Manages 9 Minecraft-style hotbar slots, stack counts, passive hold tick, and Right-Click/Left-Click item mechanics
 
 signal slot_selected(index: int, item: HCFItemResource, count: int)
 signal hotbar_updated(slots: Array, counts: Array)
 signal cooldown_updated(item_id: String, remaining: float, total: float)
 
 @export var max_slots: int = 9
+@export var eat_duration: float = 0.25 # Time in seconds holding Right Click to eat food
 
 var slots: Array[HCFItemResource] = []
 var slot_counts: Array[int] = []
 var selected_slot: int = 0
 var cooldowns: Dictionary = {}
+
+var is_right_click_held: bool = false
+var eat_timer: float = 0.0
 
 func _ready() -> void:
 	slots.resize(max_slots)
@@ -24,16 +28,65 @@ func _input(event: InputEvent) -> void:
 	if not is_inside_tree() or not owner:
 		return
 		
-	# Mouse Wheel Slot Scrolling and Mouse Click Usage
-	if event is InputEventMouseButton and event.pressed:
-		if event.button_index == MOUSE_BUTTON_WHEEL_UP:
-			select_slot((selected_slot - 1 + max_slots) % max_slots)
-		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
-			select_slot((selected_slot + 1) % max_slots)
-		elif event.button_index == MouseButton.MOUSE_BUTTON_RIGHT or event.button_index == MouseButton.MOUSE_BUTTON_LEFT:
-			var used = use_held_item()
-			if not used and event.button_index == MouseButton.MOUSE_BUTTON_LEFT:
-				_trigger_primary_attack()
+	# Mouse Wheel Slot Scrolling
+	if event is InputEventMouseButton:
+		if event.pressed:
+			if event.button_index == MOUSE_BUTTON_WHEEL_UP:
+				select_slot((selected_slot - 1 + max_slots) % max_slots)
+			elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+				select_slot((selected_slot + 1) % max_slots)
+			elif event.button_index == MouseButton.MOUSE_BUTTON_RIGHT:
+				is_right_click_held = true
+				eat_timer = 0.0
+				_handle_right_click_press()
+			elif event.button_index == MouseButton.MOUSE_BUTTON_LEFT:
+				_handle_left_click_press()
+		else:
+			if event.button_index == MouseButton.MOUSE_BUTTON_RIGHT:
+				is_right_click_held = false
+				eat_timer = 0.0
+
+func _handle_left_click_press() -> void:
+	var item = get_held_item()
+	# Left Click with Weapon vs Fist/Consumable Punch
+	if item and (item.item_id == "diamond_sword" or item.item_id == "rogue_backstab"):
+		use_held_item()
+	else:
+		_trigger_primary_attack()
+
+func _handle_right_click_press() -> void:
+	var item = get_held_item()
+	if not item or get_held_count() <= 0:
+		return
+	
+	# Ender Pearl & Bard Sugar activate immediately on Right Click
+	if item.item_id == "ender_pearl" or item.item_id == "bard_sugar":
+		use_held_item()
+
+func _physics_process(delta: float) -> void:
+	# Process Cooldown Timers
+	for item_id in cooldowns.keys():
+		var data = cooldowns[item_id]
+		data["remaining"] -= delta
+		if data["remaining"] <= 0:
+			cooldowns.erase(item_id)
+			cooldown_updated.emit(item_id, 0.0, 1.0)
+		else:
+			cooldown_updated.emit(item_id, data["remaining"], data["total"])
+	
+	# Process Food Eating on holding Right Click
+	if is_right_click_held:
+		var held_item = get_held_item()
+		if held_item and held_item.item_id == "golden_apple":
+			eat_timer += delta
+			if eat_timer >= eat_duration:
+				eat_timer = 0.0
+				use_held_item()
+	
+	# Process Passive Hold Tick for currently selected item
+	var held = get_held_item()
+	if held and owner is Node2D:
+		held.on_hold_tick(owner as Node2D, delta)
 
 func _trigger_primary_attack() -> void:
 	if not is_inside_tree() or not owner or owner is not Player:
@@ -54,22 +107,6 @@ func _trigger_primary_attack() -> void:
 		var player_dist = user.global_position.distance_to(dummy.global_position)
 		if dist_to_dummy <= 80.0 or player_dist <= 140.0:
 			user.attack_target(dummy)
-
-func _physics_process(delta: float) -> void:
-	# Process Cooldown Timers
-	for item_id in cooldowns.keys():
-		var data = cooldowns[item_id]
-		data["remaining"] -= delta
-		if data["remaining"] <= 0:
-			cooldowns.erase(item_id)
-			cooldown_updated.emit(item_id, 0.0, 1.0)
-		else:
-			cooldown_updated.emit(item_id, data["remaining"], data["total"])
-	
-	# Process Passive Hold Tick for currently selected item
-	var held_item = get_held_item()
-	if held_item and owner is Node2D:
-		held_item.on_hold_tick(owner as Node2D, delta)
 
 func select_slot(index: int) -> void:
 	if index >= 0 and index < max_slots:

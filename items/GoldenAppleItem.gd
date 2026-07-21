@@ -6,8 +6,9 @@ extends HCFItemResource
 func _init() -> void:
 	item_id = "golden_apple"
 	item_name = "Golden Apple"
-	cooldown = 0.0 # No cooldown for instant eating
+	cooldown = 0.0
 	stack_size = 64
+	icon_texture = HCFItemResource.load_item_texture("res://assets/sprites/golden_apple.png")
 
 func on_active_use(user: Node2D, _target_pos: Vector2) -> bool:
 	if not user:

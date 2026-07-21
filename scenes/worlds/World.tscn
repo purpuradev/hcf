@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="Script" path="res://scenes/worlds/World.gd" id="1_world"]
 [ext_resource type="PackedScene" path="res://entities/player/Player.tscn" id="2_player"]
@@ -6,64 +6,147 @@
 [ext_resource type="Script" path="res://scenes/zones/ZoneArea.gd" id="4_zone"]
 [ext_resource type="PackedScene" path="res://entities/dummy/DummyTarget.tscn" id="5_dummy"]
 [ext_resource type="PackedScene" path="res://scenes/ui/HotbarUI.tscn" id="6_hotbarui"]
+[ext_resource type="Script" path="res://scenes/zones/RoadArea.gd" id="7_road"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_safezone"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_spawn"]
 size = Vector2(400, 400)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_warzone"]
-size = Vector2(400, 400)
+size = Vector2(1600, 1600)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_road_north"]
+size = Vector2(120, 500)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_road_south"]
+size = Vector2(120, 500)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_road_east"]
+size = Vector2(500, 120)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_road_west"]
+size = Vector2(500, 120)
 
 [node name="World" type="Node2D"]
 script = ExtResource("1_world")
 
-[node name="Safezone" type="Area2D" parent="."]
-position = Vector2(300, 300)
+[node name="WarzoneBackground" type="Area2D" parent="."]
 collision_layer = 4
 collision_mask = 0
 script = ExtResource("4_zone")
-zone_name = "Spawn Safezone"
-faction_type = 0
-pvp_enabled = false
-faction_id = "safezone"
-
-[node name="ColorRect" type="ColorRect" parent="Safezone"]
-offset_left = -200.0
-offset_top = -200.0
-offset_right = 200.0
-offset_bottom = 200.0
-color = Color(0.1, 0.6, 0.2, 0.25)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Safezone"]
-shape = SubResource("RectangleShape2D_safezone")
-
-[node name="Warzone" type="Area2D" parent="."]
-position = Vector2(750, 300)
-collision_layer = 4
-collision_mask = 0
-script = ExtResource("4_zone")
-zone_name = "Warzone North"
+zone_name = "Warzone Wilderness"
 faction_type = 1
 pvp_enabled = true
 faction_id = "warzone"
 
-[node name="ColorRect" type="ColorRect" parent="Warzone"]
+[node name="ColorRect" type="ColorRect" parent="WarzoneBackground"]
+offset_left = -800.0
+offset_top = -800.0
+offset_right = 800.0
+offset_bottom = 800.0
+color = Color(0.25, 0.1, 0.1, 0.2)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WarzoneBackground"]
+shape = SubResource("RectangleShape2D_warzone")
+
+[node name="NorthRoad" type="Area2D" parent="."]
+position = Vector2(0, -450)
+collision_layer = 4
+collision_mask = 0
+script = ExtResource("7_road")
+road_name = "North Road"
+road_direction = "NORTH"
+
+[node name="ColorRect" type="ColorRect" parent="NorthRoad"]
+offset_left = -60.0
+offset_top = -250.0
+offset_right = 60.0
+offset_bottom = 250.0
+color = Color(0.2, 0.2, 0.25, 0.6)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="NorthRoad"]
+shape = SubResource("RectangleShape2D_road_north")
+
+[node name="SouthRoad" type="Area2D" parent="."]
+position = Vector2(0, 450)
+collision_layer = 4
+collision_mask = 0
+script = ExtResource("7_road")
+road_name = "South Road"
+road_direction = "SOUTH"
+
+[node name="ColorRect" type="ColorRect" parent="SouthRoad"]
+offset_left = -60.0
+offset_top = -250.0
+offset_right = 60.0
+offset_bottom = 250.0
+color = Color(0.2, 0.2, 0.25, 0.6)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SouthRoad"]
+shape = SubResource("RectangleShape2D_road_south")
+
+[node name="EastRoad" type="Area2D" parent="."]
+position = Vector2(450, 0)
+collision_layer = 4
+collision_mask = 0
+script = ExtResource("7_road")
+road_name = "East Road"
+road_direction = "EAST"
+
+[node name="ColorRect" type="ColorRect" parent="EastRoad"]
+offset_left = -250.0
+offset_top = -60.0
+offset_right = 250.0
+offset_bottom = 60.0
+color = Color(0.2, 0.2, 0.25, 0.6)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="EastRoad"]
+shape = SubResource("RectangleShape2D_road_east")
+
+[node name="WestRoad" type="Area2D" parent="."]
+position = Vector2(-450, 0)
+collision_layer = 4
+collision_mask = 0
+script = ExtResource("7_road")
+road_name = "West Road"
+road_direction = "WEST"
+
+[node name="ColorRect" type="ColorRect" parent="WestRoad"]
+offset_left = -250.0
+offset_top = -60.0
+offset_right = 250.0
+offset_bottom = 60.0
+color = Color(0.2, 0.2, 0.25, 0.6)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WestRoad"]
+shape = SubResource("RectangleShape2D_road_west")
+
+[node name="SpawnCastle" type="Area2D" parent="."]
+collision_layer = 4
+collision_mask = 0
+script = ExtResource("4_zone")
+zone_name = "Spawn Castle"
+faction_type = 0
+pvp_enabled = false
+faction_id = "safezone"
+
+[node name="ColorRect" type="ColorRect" parent="SpawnCastle"]
 offset_left = -200.0
 offset_top = -200.0
 offset_right = 200.0
 offset_bottom = 200.0
-color = Color(0.8, 0.2, 0.2, 0.25)
+color = Color(0.1, 0.6, 0.3, 0.4)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Warzone"]
-shape = SubResource("RectangleShape2D_warzone")
+[node name="CollisionShape2D" type="CollisionShape2D" parent="SpawnCastle"]
+shape = SubResource("RectangleShape2D_spawn")
 
 [node name="DummyTarget" parent="." instance=ExtResource("5_dummy")]
-position = Vector2(750, 300)
+position = Vector2(0, -450)
 
 [node name="Player" parent="." instance=ExtResource("2_player")]
-position = Vector2(300, 300)
+position = Vector2(0, 0)
 
 [node name="GameCamera" parent="." instance=ExtResource("3_camera")]
-position = Vector2(300, 300)
+position = Vector2(0, 0)
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
@@ -80,7 +163,7 @@ mouse_filter = 2
 layout_mode = 0
 offset_left = 20.0
 offset_top = 20.0
-offset_right = 550.0
+offset_right = 580.0
 offset_bottom = 250.0
 mouse_filter = 2
 
@@ -90,7 +173,7 @@ text = "Clase: Rogue (Velocidad: 1.3x)"
 
 [node name="ZoneLabel" type="Label" parent="CanvasLayer/HUD/VBoxContainer"]
 layout_mode = 2
-text = "Zona: Spawn Safezone [SAFEZONE]"
+text = "Zona: Spawn Castle [SAFEZONE]"
 
 [node name="CombatTagLabel" type="Label" parent="CanvasLayer/HUD/VBoxContainer"]
 layout_mode = 2
@@ -98,13 +181,11 @@ text = "COMBAT TAG: Inactivo"
 
 [node name="ControlsLabel" type="Label" parent="CanvasLayer/HUD/VBoxContainer"]
 layout_mode = 2
-text = "Controles Auténticos HCF:
-- Slot 1: Diamond Sword (Ataque rápido sin cooldown - No se stackea)
-- Slot 2: Daga Rogue Backstab (10s Cooldown - Daño Crítico 2.5x por la Espalda)
-- Slot 3: Ender Pearl (16 Perlas - 15s Cooldown)
-- Slot 4: Golden Apple (64 Manzanas - Sin Cooldown)
-- Slot 5: Bard Sugar (64 Azúcar - Pasiva Speed II | Activa Speed III)
-- Z, X, C: Cambiar Clase | T: Combat Tag"
+text = "Mapa Minecraft HCF:
+- Spawn Castle Central (Safezone) | 4 Carreteras: NORTH, SOUTH, EAST, WEST
+- Barrera de Spawn: Si estás en Combat Tag, ¡la barrera del Spawn te rebota!
+- Slot 1: Diamond Sword | Slot 2: Rogue Dagger | Slot 3: Ender Pearl
+- Slot 4: Golden Apple | Slot 5: Bard Sugar | Z, X, C: Clases | T: Combat Tag"
 
 [node name="HotbarUI" parent="CanvasLayer/HUD" instance=ExtResource("6_hotbarui")]
 layout_mode = 1

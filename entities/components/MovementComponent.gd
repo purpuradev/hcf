@@ -12,6 +12,7 @@ extends Node
 var move_direction: Vector2 = Vector2.ZERO
 var is_sprinting: bool = false
 var knockback_velocity: Vector2 = Vector2.ZERO
+var speed_modifiers: Dictionary = {}
 
 @onready var character_body: CharacterBody2D = owner as CharacterBody2D
 
@@ -19,12 +20,22 @@ func _physics_process(delta: float) -> void:
 	if not character_body:
 		return
 	
+	# Process speed modifiers
+	var speed_mod = 1.0
+	for key in speed_modifiers.keys():
+		var data = speed_modifiers[key]
+		data["duration"] -= delta
+		if data["duration"] <= 0:
+			speed_modifiers.erase(key)
+		else:
+			speed_mod *= data["multiplier"]
+	
 	# Process knockback decay
 	if knockback_velocity.length() > 0:
 		knockback_velocity = knockback_velocity.move_toward(Vector2.ZERO, knockback_decay * delta)
 	
 	# Calculate target speed
-	var current_max_speed = max_speed * (sprint_multiplier if is_sprinting else 1.0)
+	var current_max_speed = max_speed * (sprint_multiplier if is_sprinting else 1.0) * speed_mod
 	var target_velocity = move_direction.normalized() * current_max_speed
 	
 	# Apply acceleration or friction
@@ -41,5 +52,8 @@ func _physics_process(delta: float) -> void:
 func set_movement_direction(dir: Vector2) -> void:
 	move_direction = dir
 
-func apply_knockback(force: Vector2) -> void:
+func apply_speed_modifier(mod_id: String, multiplier: float, duration: float) -> void:
+	speed_modifiers[mod_id] = {"multiplier": multiplier, "duration": duration}
+
+func apply_knockback(force: Vector2, _duration: float = 0.0) -> void:
 	knockback_velocity += force

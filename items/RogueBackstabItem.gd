@@ -6,8 +6,9 @@ extends HCFItemResource
 func _init() -> void:
 	item_id = "rogue_backstab"
 	item_name = "Rogue Dagger"
-	cooldown = 10.0 # Cooldown triggered ONLY on successful backstab
+	cooldown = 10.0
 	stack_size = 1
+	icon_texture = HCFItemResource.load_item_texture("res://assets/sprites/rogue_dagger.png")
 
 func on_active_use(user: Node2D, _target_pos: Vector2) -> bool:
 	if not user or user is not Player:
@@ -26,11 +27,9 @@ func on_active_use(user: Node2D, _target_pos: Vector2) -> bool:
 	if dist > 140.0:
 		return false
 	
-	# Base damage payload (15.0 HP)
 	var damage_info = DamageInfo.new(15.0, player, GameEnums.DamageType.PHYSICAL)
-	
-	# Check if standing BEHIND target
 	var is_backstab = false
+	
 	if player.backstab_component:
 		if player.backstab_component.is_behind_target(player, dummy):
 			player.backstab_component.process_backstab(player, dummy, damage_info)
@@ -39,9 +38,6 @@ func on_active_use(user: Node2D, _target_pos: Vector2) -> bool:
 	if dummy.has_node("HurtboxComponent"):
 		var hurtbox = dummy.get_node("HurtboxComponent") as HurtboxComponent
 		hurtbox.receive_hit(damage_info)
-		
-		# Return true ONLY on successful backstab to trigger 10s cooldown!
-		# If hit from front, deals normal damage without wasting backstab cooldown!
 		return is_backstab
 	
 	return false

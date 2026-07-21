@@ -8,22 +8,21 @@ extends HCFItemResource
 func _init() -> void:
 	item_id = "diamond_sword"
 	item_name = "Diamond Sword"
-	cooldown = 0.0 # Zero cooldown for rapid swinging
-	stack_size = 1 # Swords do not stack
+	cooldown = 0.0
+	stack_size = 1
+	icon_texture = HCFItemResource.load_item_texture("res://assets/sprites/diamond_sword.png")
 
 func on_active_use(user: Node2D, _target_pos: Vector2) -> bool:
 	if not user or user is not Player:
 		return false
 	
 	var player = user as Player
-	
-	# Find dummy or target in world to attack
 	var world = player.get_tree().current_scene
 	if world:
 		var dummy = world.find_child("DummyTarget", true, false) as Node2D
 		if dummy:
 			var dist = player.global_position.distance_to(dummy.global_position)
-			if dist <= 120.0:
+			if dist <= 140.0:
 				player.attack_target(dummy)
 				return true
 	

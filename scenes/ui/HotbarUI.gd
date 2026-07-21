@@ -1,7 +1,7 @@
 class_name HotbarUI
 extends Control
 
-## Sleek, compact UI displaying 9 Hotbar slots, stack counts, 6 Health Circles and 6 Food Circles
+## Sleek, compact UI displaying 9 Hotbar slots, pixel art item icons, stack counts, 6 Health Circles and 6 Food Circles
 
 @export var hotbar_component: HotbarComponent
 
@@ -11,6 +11,7 @@ extends Control
 
 var slot_panels: Array[PanelContainer] = []
 var slot_labels: Array[Label] = []
+var slot_icon_rects: Array[TextureRect] = []
 var slot_count_labels: Array[Label] = []
 var cooldown_overlays: Array[ColorRect] = []
 
@@ -32,7 +33,6 @@ func _create_discrete_icons() -> void:
 	if not hearts_container or not food_container:
 		return
 		
-	# Build 6 Red Health Circles
 	for child in hearts_container.get_children():
 		child.queue_free()
 	heart_nodes.clear()
@@ -44,7 +44,6 @@ func _create_discrete_icons() -> void:
 		hearts_container.add_child(rect)
 		heart_nodes.append(rect)
 	
-	# Build 6 Orange Food Circles
 	for child in food_container.get_children():
 		child.queue_free()
 	food_nodes.clear()
@@ -65,6 +64,7 @@ func _create_hotbar_slots() -> void:
 	
 	slot_panels.clear()
 	slot_labels.clear()
+	slot_icon_rects.clear()
 	slot_count_labels.clear()
 	cooldown_overlays.clear()
 	
@@ -73,11 +73,21 @@ func _create_hotbar_slots() -> void:
 		panel.custom_minimum_size = Vector2(46, 46)
 		
 		var margin = MarginContainer.new()
+		margin.custom_minimum_size = Vector2(40, 40)
 		margin.add_theme_constant_override("margin_left", 2)
 		margin.add_theme_constant_override("margin_top", 2)
 		margin.add_theme_constant_override("margin_right", 2)
 		margin.add_theme_constant_override("margin_bottom", 2)
 		
+		# Texture Icon Rect
+		var icon_rect = TextureRect.new()
+		icon_rect.custom_minimum_size = Vector2(36, 36)
+		icon_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		icon_rect.visible = false
+		margin.add_child(icon_rect)
+		
+		# Text Label Fallback
 		var label = Label.new()
 		label.text = "%d" % (i + 1)
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -105,6 +115,7 @@ func _create_hotbar_slots() -> void:
 		
 		slot_panels.append(panel)
 		slot_labels.append(label)
+		slot_icon_rects.append(icon_rect)
 		slot_count_labels.append(count_label)
 		cooldown_overlays.append(cooldown_overlay)
 	
@@ -125,9 +136,9 @@ func bind_hotbar(component: HotbarComponent) -> void:
 func update_selection(selected_index: int) -> void:
 	for i in range(slot_panels.size()):
 		if i == selected_index:
-			slot_panels[i].modulate = Color(1.5, 1.4, 0.3, 1.0)
+			slot_panels[i].modulate = Color(1.8, 1.6, 0.4, 1.0)
 		else:
-			slot_panels[i].modulate = Color(0.7, 0.7, 0.7, 0.8)
+			slot_panels[i].modulate = Color(1.0, 1.0, 1.0, 0.9)
 
 func _on_player_health_changed(current: float, max_hp: float) -> void:
 	if heart_nodes.size() < 6:
@@ -162,18 +173,42 @@ func _on_hotbar_updated(slots: Array, counts: Array) -> void:
 		var count = counts[i] if i < counts.size() else 0
 		
 		if item and count > 0:
-			var short_name = item.item_name
-			if item.item_id == "diamond_sword": short_name = "Espada"
-			elif item.item_id == "rogue_backstab": short_name = "Daga"
-			elif item.item_id == "ender_pearl": short_name = "Perla"
-			elif item.item_id == "golden_apple": short_name = "Manzana"
-			elif item.item_id == "bard_sugar": short_name = "Azucar"
+			if not item.icon_texture:
+				item.icon_texture = _fallback_load_texture(item.item_id)
 			
-			slot_labels[i].text = "%s" % short_name
+			if item.icon_texture:
+				slot_icon_rects[i].texture = item.icon_texture
+				slot_icon_rects[i].visible = true
+				slot_labels[i].visible = false
+			else:
+				slot_icon_rects[i].visible = false
+				slot_labels[i].visible = true
+				var short_name = item.item_name
+				if item.item_id == "diamond_sword": short_name = "Espada"
+				elif item.item_id == "rogue_backstab": short_name = "Daga"
+				elif item.item_id == "ender_pearl": short_name = "Perla"
+				elif item.item_id == "golden_apple": short_name = "Manzana"
+				elif item.item_id == "bard_sugar": short_name = "Azucar"
+				slot_labels[i].text = "%s" % short_name
+			
 			slot_count_labels[i].text = "%d" if item.stack_size > 1 else ""
 		else:
+			slot_icon_rects[i].visible = false
+			slot_labels[i].visible = true
 			slot_labels[i].text = "%d" % (i + 1)
 			slot_count_labels[i].text = ""
+
+func _fallback_load_texture(item_id: String) -> Texture2D:
+	var path_map = {
+		"diamond_sword": "res://assets/sprites/diamond_sword.png",
+		"rogue_backstab": "res://assets/sprites/rogue_dagger.png",
+		"ender_pearl": "res://assets/sprites/ender_pearl.png",
+		"golden_apple": "res://assets/sprites/golden_apple.png",
+		"bard_sugar": "res://assets/sprites/bard_sugar.png"
+	}
+	if path_map.has(item_id):
+		return HCFItemResource.load_item_texture(path_map[item_id])
+	return null
 
 func _on_cooldown_updated(item_id: String, remaining: float, total: float) -> void:
 	if not hotbar_component:

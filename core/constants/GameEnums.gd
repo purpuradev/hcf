@@ -9,7 +9,8 @@ enum DamageType {
 	TRUE_DAMAGE,
 	ENVIRONMENTAL,
 	POISON,
-	FIRE
+	FIRE,
+	FALL
 }
 
 enum FactionType {

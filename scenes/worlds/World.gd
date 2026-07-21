@@ -24,11 +24,11 @@ func _ready() -> void:
 		player.class_system.equip_class(rogue_class)
 	
 	# Populate Player Hotbar:
-	# Slot 1: Diamond Sword (Ataque continuo sin cooldown)
-	# Slot 2: Daga Rogue Backstab (Ataque por la espalda 2.5x con 10s de cooldown)
-	# Slot 3: Ender Pearl (16 perlas)
-	# Slot 4: Golden Apple (64 manzanas sin cooldown)
-	# Slot 5: Bard Sugar (64 azúcar)
+	# Slot 1: Diamond Sword
+	# Slot 2: Daga Rogue Backstab
+	# Slot 3: Ender Pearl (16)
+	# Slot 4: Golden Apple (64)
+	# Slot 5: Bard Sugar (64)
 	if player and player.hotbar_component:
 		player.hotbar_component.set_slot_item(0, SwordItem.new(), 1)
 		player.hotbar_component.set_slot_item(1, RogueBackstabItem.new(), 1)

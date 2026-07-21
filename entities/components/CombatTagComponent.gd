@@ -29,6 +29,9 @@ func _process(delta: float) -> void:
 			if bus:
 				bus.combat_tag_updated.emit(remaining_time, true)
 
+func is_combat_tagged() -> bool:
+	return is_tagged and remaining_time > 0
+
 func trigger_combat_tag(duration: float = -1.0) -> void:
 	var tag_duration = default_tag_duration if duration < 0 else duration
 	remaining_time = max(remaining_time, tag_duration)
